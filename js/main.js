@@ -29,7 +29,7 @@ let selectedDoctor = { id: null, name: '' };
 let selectedDate = null;
 let selectedTime = null;
 
-// Имитация бэкенда для демонстрации
+
 // Имитация бэкенда для демонстрации
 const fakeBackend = {
     getMonthlyAvailability: async (doctorId, year, month) => { await new Promise(res => setTimeout(res, 500)); const unavailableDays = [new Date().getDate() + 2, new Date().getDate() + 5]; const daysInMonth = new Date(year, month + 1, 0).getDate(); return Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, status: unavailableDays.includes(i + 1) ? 'unavailable' : 'available' })); },
