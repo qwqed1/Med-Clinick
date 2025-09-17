@@ -324,6 +324,24 @@ body {
   animation: spin 1s linear infinite;
   margin: 20px auto;
 }
+
+.rating-stars {
+  display: inline-block;
+}
+.rating-stars i {
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-size: 24px;
+}
+.rating-stars:hover i,
+.rating-stars i.active {
+  color: var(--gold);
+}
+.rating-stars i:hover ~ i {
+  color: #e0e0e0;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

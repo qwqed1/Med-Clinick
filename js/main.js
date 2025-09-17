@@ -30,10 +30,27 @@ let selectedDate = null;
 let selectedTime = null;
 
 // Имитация бэкенда для демонстрации
+// Имитация бэкенда для демонстрации
 const fakeBackend = {
     getMonthlyAvailability: async (doctorId, year, month) => { await new Promise(res => setTimeout(res, 500)); const unavailableDays = [new Date().getDate() + 2, new Date().getDate() + 5]; const daysInMonth = new Date(year, month + 1, 0).getDate(); return Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, status: unavailableDays.includes(i + 1) ? 'unavailable' : 'available' })); },
     getDailyTimeslots: async (doctorId, date) => { await new Promise(res => setTimeout(res, 500)); return [ { time: "09:00", status: "available" }, { time: "09:30", status: "unavailable" }, { time: "10:00", status: "available" }, { time: "10:30", status: "available" }, { time: "11:00", status: "unavailable" }, { time: "11:30", status: "available" }, { time: "12:00", status: "unavailable" }, { time: "12:30", status: "available" }]; },
+
+    // ДОБАВЬТЕ ЭТИ ДВА МЕТОДА
+    getApprovedReviews: async () => {
+        await new Promise(res => setTimeout(res, 500));
+        return [
+            { name: "Анна К.", text: "Прекрасная клиника! Современное оборудование, внимательный персонал.", rating: 5 },
+            { name: "Сергей Б.", text: "Проходил полное обследование. Всё на высшем уровне!", rating: 5 },
+            { name: "Марина И.", text: "Лучший сервис в городе. Записалась через сайт, все очень удобно.", rating: 5 }
+        ];
+    },
+    submitNewReview: async (reviewData) => {
+        console.log("ОТПРАВКА ОТЗЫВА АДМИНУ:", reviewData);
+        await new Promise(res => setTimeout(res, 1000));
+        return { success: true };
+    }
 };
+
 
 async function openBookingModal(doctorId, doctorName) {
     if (!doctorId || !doctorName) {
@@ -178,6 +195,46 @@ function confirmAppointment() {
     closeBookingModal();
 }
 
+// =================================================================
+// НОВЫЙ КОД: Логика для модального окна отзывов
+// =================================================================
+const reviewModal = document.getElementById('reviewModal');
+let currentRating = 0;
+
+function openReviewModal() {
+    reviewModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('review-step1').classList.remove('hidden');
+    document.getElementById('review-step2').classList.add('hidden');
+    document.getElementById('review-name').value = '';
+    document.getElementById('review-text').value = '';
+    currentRating = 0;
+    document.querySelectorAll('#review-rating i').forEach(star => star.classList.remove('active'));
+}
+
+function closeReviewModal() {
+    reviewModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+const stars = document.querySelectorAll('#review-rating i');
+stars.forEach(star => {
+    star.addEventListener('mouseover', (e) => {
+        const ratingValue = e.target.dataset.value;
+        stars.forEach(s => {
+            s.classList.toggle('active', s.dataset.value <= ratingValue);
+        });
+    });
+    star.addEventListener('mouseout', () => {
+         stars.forEach(s => {
+            s.classList.toggle('active', s.dataset.value <= currentRating);
+        });
+    });
+    star.addEventListener('click', (e) => {
+        currentRating = e.target.dataset.value;
+    });
+});
+
 document.getElementById('prev-month').onclick = () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
@@ -207,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 3, name: "Сидоров Дмитрий", specialty: "Хирург", experience: "20 лет", degree: "Доктор медицинских наук", imageUrl: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop" },
         { id: 4, name: "Ковалева Ольга", specialty: "Педиатр", experience: "10 лет", degree: "Врач первой категории", imageUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop" }
     ];
-    
+
     doctorsContainer.innerHTML = '';
     doctorsData.forEach(doctor => {
         const doctorCardHTML = `
@@ -233,6 +290,61 @@ document.addEventListener('DOMContentLoaded', () => {
         navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
     });
+
+    const testimonialsContainer = document.getElementById('testimonials-container');
+    fakeBackend.getApprovedReviews().then(reviews => {
+        testimonialsContainer.innerHTML = '';
+        reviews.forEach(review => {
+            let starsHTML = '';
+            for(let i=0; i<5; i++) {
+                starsHTML += `<i class="fas fa-star ${i < review.rating ? 'text-gold' : 'text-gray-300'}"></i>`;
+            }
+            const reviewCardHTML = `
+                <div class="swiper-slide h-auto">
+                    <div class="testimonial-card">
+                        <div>
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold">${review.name.match(/\b(\w)/g).join('')}</div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold">${review.name}</h4>
+                                    <div class="flex">${starsHTML}</div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600">"${review.text}"</p>
+                        </div>
+                    </div>
+                </div>`;
+            testimonialsContainer.innerHTML += reviewCardHTML;
+        });
+        
+        // Инициализация новой карусели для отзывов
+        new Swiper('.testimonial-swiper', {
+            slidesPerView: 1, spaceBetween: 30, loop: true,
+            pagination: { el: '.swiper-pagination', clickable: true },
+            autoplay: { delay: 5000 },
+            breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+        });
+    });
+
+    document.getElementById('submit-review-btn').addEventListener('click', async () => {
+        const name = document.getElementById('review-name').value;
+        const text = document.getElementById('review-text').value;
+        if (!name || !text || currentRating === 0) {
+            alert('Пожалуйста, заполните все поля и поставьте оценку.');
+            return;
+        }
+        
+        const reviewData = { name, text, rating: currentRating };
+        const response = await fakeBackend.submitNewReview(reviewData);
+
+        if (response.success) {
+            document.getElementById('review-step1').classList.add('hidden');
+            document.getElementById('review-step2').classList.remove('hidden');
+        } else {
+            alert('Произошла ошибка. Попробуйте позже.');
+        }
+    });
+    
 
     // ИЗМЕНЕНИЕ ЗДЕСЬ: Добавляем обработчик на общие кнопки "Записаться"
     document.querySelectorAll('a[href="#doctors"], button[onclick*="openBookingModal"]').forEach(btn => {

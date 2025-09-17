@@ -405,70 +405,19 @@
         <h2 class="section-title text-4xl font-bold text-center text-gray-800">
           Отзывы пациентов
         </h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="testimonial-card">
-            <div class="flex items-center mb-4">
-              <div
-                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
-              >
-                АК
-              </div>
-              <div class="ml-4">
-                <h4 class="font-semibold">Анна Казахстанова</h4>
-                <div class="flex text-gold">
-                  <i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-            <p class="text-gray-600">
-              Прекрасная клиника! Современное оборудование, внимательный
-              персонал. Особенно хочу отметить профессионализм врачей.
-            </p>
-          </div>
-          <div class="testimonial-card">
-            <div class="flex items-center mb-4">
-              <div
-                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
-              >
-                СБ
-              </div>
-              <div class="ml-4">
-                <h4 class="font-semibold">Сергей Беляев</h4>
-                <div class="flex text-gold">
-                  <i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-            <p class="text-gray-600">
-              Проходил полное обследование. Всё на высшем уровне! Результаты
-              получил быстро, врачи всё подробно объяснили.
-            </p>
-          </div>
-          <div class="testimonial-card">
-            <div class="flex items-center mb-4">
-              <div
-                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
-              >
-                МИ
-              </div>
-              <div class="ml-4">
-                <h4 class="font-semibold">Марина Иванова</h4>
-                <div class="flex text-gold">
-                  <i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
-                  ><i class="fas fa-star"></i>
-                </div>
-              </div>
-            </div>
-            <p class="text-gray-600">
-              Лучший сервис в городе. Записалась через сайт, все очень удобно.
-              Никаких очередей, приняли вовремя.
-            </p>
-          </div>
+
+        <div class="swiper testimonial-swiper">
+          <div class="swiper-wrapper py-4" id="testimonials-container"></div>
+          <div class="swiper-pagination mt-8"></div>
+        </div>
+
+        <div class="text-center mt-12">
+          <button
+            onclick="openReviewModal()"
+            class="bg-gold text-white px-8 py-3 rounded-full hover:bg-opacity-90 transition transform hover:scale-105"
+          >
+            Оставить отзыв
+          </button>
         </div>
       </section>
 
@@ -647,6 +596,88 @@
             class="mt-6 bg-gold text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
           >
             Закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reviewModal" class="modal-overlay">
+      <div class="modal-content max-w-lg">
+        <button
+          onclick="closeReviewModal()"
+          class="absolute top-4 right-6 text-gray-500 hover:text-gray-800 text-2xl"
+          title="Close modal"
+        >
+          ×
+        </button>
+
+        <div id="review-step1">
+          <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+            Оставить отзыв
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <label
+                for="review-name"
+                class="block text-sm font-medium text-gray-700"
+                >Ваше имя</label
+              >
+              <input
+                type="text"
+                id="review-name"
+                placeholder="Как к вам обращаться?"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gold focus:border-gold"
+              />
+            </div>
+            <div>
+              <label
+                for="review-text"
+                class="block text-sm font-medium text-gray-700"
+                >Текст отзыва</label
+              >
+              <textarea
+                id="review-text"
+                rows="4"
+                placeholder="Поделитесь вашими впечатлениями..."
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gold focus:border-gold"
+              ></textarea>
+            </div>
+            <div class="text-center">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Ваша оценка</label
+              >
+              <div id="review-rating" class="rating-stars">
+                <i class="fas fa-star" data-value="1"></i>
+                <i class="fas fa-star" data-value="2"></i>
+                <i class="fas fa-star" data-value="3"></i>
+                <i class="fas fa-star" data-value="4"></i>
+                <i class="fas fa-star" data-value="5"></i>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8">
+            <button
+              id="submit-review-btn"
+              class="w-full bg-gold text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+            >
+              Отправить на модерацию
+            </button>
+          </div>
+        </div>
+
+        <div id="review-step2" class="hidden text-center">
+          <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+          <h2 class="text-2xl font-bold mb-2 text-gray-800">
+            Спасибо за ваш отзыв!
+          </h2>
+          <p class="text-gray-600">
+            Он будет опубликован на сайте после проверки модератором.
+          </p>
+          <button
+            onclick="closeReviewModal()"
+            class="mt-6 bg-gold text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+          >
+            Отлично!
           </button>
         </div>
       </div>
