@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Status Medical Center - Премиальная клиника в Усть-Каменогорске
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="./styles/style.css" />
+  </head>
+  <body>
+    <header class="sticky top-0 z-50 bg-white shadow-lg">
+      <nav class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <div
+              class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-heartbeat text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gold">Status Medical Center</h1>
+          </div>
+          <div class="hidden md:flex space-x-8">
+            <a href="#home" class="nav-link text-gray-700 hover:text-gold"
+              >Главная</a
+            >
+            <a href="#about" class="nav-link text-gray-700 hover:text-gold"
+              >О клинике</a
+            >
+            <a href="#services" class="nav-link text-gray-700 hover:text-gold"
+              >Услуги</a
+            >
+            <a href="#doctors" class="nav-link text-gray-700 hover:text-gold"
+              >Специалисты</a
+            >
+            <a href="#promotions" class="nav-link text-gray-700 hover:text-gold"
+              >Акции</a
+            >
+            <a href="#contacts" class="nav-link text-gray-700 hover:text-gold"
+              >Контакты</a
+            >
+          </div>
+          <button
+            class="md:hidden text-gray-700"
+            onclick="toggleMobileMenu()"
+            title="Toggle mobile menu"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+        </div>
+      </nav>
+      <div
+        id="mobileMenu"
+        class="mobile-menu fixed top-0 left-0 w-64 h-full bg-white shadow-xl z-50 md:hidden"
+      >
+        <div class="p-4">
+          <button
+            onclick="toggleMobileMenu()"
+            class="text-gray-700 mb-6"
+            title="Close menu"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+          <div class="flex flex-col space-y-4">
+            <a
+              href="#home"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Главная</a
+            >
+            <a
+              href="#about"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >О клинике</a
+            >
+            <a
+              href="#services"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Услуги</a
+            >
+            <a
+              href="#doctors"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Специалисты</a
+            >
+            <a
+              href="#promotions"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Акции</a
+            >
+            <a
+              href="#contacts"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Контакты</a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="container mx-auto px-4 py-8">
+        <div class="carousel-container h-96 md:h-[500px]">
+          <div class="carousel-slide active relative h-full">
+            <img
+              src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=500&fit=crop"
+              alt="Клиника"
+              class="w-full h-full object-cover"
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+            >
+              <div class="text-center text-white px-4">
+                <h2 class="text-4xl md:text-6xl font-bold mb-4">
+                  Status Medical Center
+                </h2>
+                <p class="text-xl md:text-2xl">
+                  Премиальная медицина в Усть-Каменогорске
+                </p>
+                <a
+                  href="#doctors"
+                  class="mt-6 inline-block bg-gold text-white px-8 py-3 rounded-full hover:bg-opacity-90 transition transform hover:scale-105"
+                  >Записаться на приём</a
+                >
+              </div>
+            </div>
+          </div>
+          <div class="carousel-slide relative h-full">
+            <img
+              src="https://images.unsplash.com/photo-1581093458791-9d42e3c7e117?w=1200&h=500&fit=crop"
+              alt="Оборудование"
+              class="w-full h-full object-cover"
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+            >
+              <div class="text-center text-white px-4">
+                <h2 class="text-4xl md:text-6xl font-bold mb-4">
+                  Современное оборудование
+                </h2>
+                <p class="text-xl md:text-2xl">
+                  Инновационные технологии для вашего здоровья
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-slide relative h-full">
+            <img
+              src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200&h=500&fit=crop"
+              alt="Специалисты"
+              class="w-full h-full object-cover"
+            />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+            >
+              <div class="text-center text-white px-4">
+                <h2 class="text-4xl md:text-6xl font-bold mb-4">
+                  Опытные специалисты
+                </h2>
+                <p class="text-xl md:text-2xl">Врачи высшей категории</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4 space-x-2">
+          <button
+            title="Carousel slide 1"
+            onclick="changeSlide(0)"
+            class="w-3 h-3 rounded-full bg-gold opacity-100 hover:opacity-100 transition"
+          ></button>
+          <button
+            title="Carousel slide 2"
+            onclick="changeSlide(1)"
+            class="w-3 h-3 rounded-full bg-gold opacity-50 hover:opacity-100 transition"
+          ></button>
+          <button
+            title="Carousel slide 3"
+            onclick="changeSlide(2)"
+            class="w-3 h-3 rounded-full bg-gold opacity-50 hover:opacity-100 transition"
+          ></button>
+        </div>
+      </section>
+
+      <section id="about" class="container mx-auto px-4 py-16">
+        <h2 class="section-title text-4xl font-bold text-center text-gray-800">
+          О клинике
+        </h2>
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 class="text-2xl font-semibold mb-4 text-gold">Наша миссия</h3>
+            <p class="text-gray-600 mb-4">
+              Status Medical Center - это современная клиника премиум-класса,
+              где сочетаются передовые технологии, высококвалифицированные
+              специалисты и индивидуальный подход к каждому пациенту.
+            </p>
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-gold mr-3"></i
+                ><span>Лицензированная деятельность</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-gold mr-3"></i
+                ><span>Международные стандарты качества</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-gold mr-3"></i
+                ><span>Современное оборудование</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-gold mr-3"></i
+                ><span>Комфортные условия</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <img
+              src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&h=300&fit=crop"
+              alt="Интерьер"
+              class="rounded-lg shadow-lg"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop"
+              alt="Кабинет"
+              class="rounded-lg shadow-lg"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=400&h=300&fit=crop"
+              alt="Зона ожидания"
+              class="rounded-lg shadow-lg"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=400&h=300&fit=crop"
+              alt="Ресепшен"
+              class="rounded-lg shadow-lg"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <h2
+            class="section-title text-4xl font-bold text-center text-gray-800"
+          >
+            Наши услуги
+          </h2>
+          <div class="grid md:grid-cols-3 gap-6 mb-12">
+            <div class="service-card">
+              <div class="h-48 gold-gradient flex items-center justify-center">
+                <i class="fas fa-user-md text-6xl text-white"></i>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Терапия</h3>
+                <p class="text-gray-600 mb-4">
+                  Комплексное лечение и профилактика заболеваний
+                </p>
+                <p class="text-sm text-gold font-semibold">от 15 000 ₸</p>
+              </div>
+            </div>
+            <div class="service-card">
+              <div class="h-48 gold-gradient flex items-center justify-center">
+                <i class="fas fa-procedures text-6xl text-white"></i>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Хирургия</h3>
+                <p class="text-gray-600 mb-4">
+                  Малоинвазивные операции с использованием современных
+                  технологий
+                </p>
+                <p class="text-sm text-gold font-semibold">от 50 000 ₸</p>
+              </div>
+            </div>
+            <div class="service-card">
+              <div class="h-48 gold-gradient flex items-center justify-center">
+                <i class="fas fa-x-ray text-6xl text-white"></i>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Диагностика</h3>
+                <p class="text-gray-600 mb-4">
+                  Точная диагностика на современном оборудовании
+                </p>
+                <p class="text-sm text-gold font-semibold">от 20 000 ₸</p>
+              </div>
+            </div>
+          </div>
+          <div class="checkup-package">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-3xl font-bold text-gray-800">
+                Программы Check-up
+              </h3>
+              <span class="promo-badge">Специальное предложение</span>
+            </div>
+            <p class="text-gray-600 mb-6">
+              Комплексное обследование организма для раннего выявления
+              заболеваний
+            </p>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="bg-white p-4 rounded-lg">
+                <h4 class="font-semibold text-gold mb-2">Базовый</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                  <li>• Анализы крови</li>
+                  <li>• ЭКГ</li>
+                  <li>• Консультация терапевта</li>
+                </ul>
+                <p class="mt-3 text-lg font-bold text-gold">75 000 ₸</p>
+              </div>
+              <div class="bg-white p-4 rounded-lg">
+                <h4 class="font-semibold text-gold mb-2">Расширенный</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                  <li>• Полный спектр анализов</li>
+                  <li>• УЗИ органов</li>
+                  <li>• Консультации специалистов</li>
+                </ul>
+                <p class="mt-3 text-lg font-bold text-gold">150 000 ₸</p>
+              </div>
+              <div class="bg-white p-4 rounded-lg">
+                <h4 class="font-semibold text-gold mb-2">Премиум</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                  <li>• Полное обследование</li>
+                  <li>• МРТ/КТ</li>
+                  <li>• Персональный план здоровья</li>
+                </ul>
+                <p class="mt-3 text-lg font-bold text-gold">250 000 ₸</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="doctors" class="container mx-auto px-4 py-16">
+        <h2 class="section-title text-4xl font-bold text-center text-gray-800">
+          Наши специалисты
+        </h2>
+        <div class="swiper doctor-swiper">
+          <div class="swiper-wrapper py-4" id="doctors-container"></div>
+          <div class="swiper-pagination mt-8"></div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+        </div>
+      </section>
+
+      <section id="promotions" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+          <h2
+            class="section-title text-4xl font-bold text-center text-gray-800"
+          >
+            Акции и спецпредложения
+          </h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div class="relative overflow-hidden rounded-2xl shadow-xl">
+              <div class="gold-gradient p-8 text-white">
+                <h3 class="text-2xl font-bold mb-4">Скидка 20% на Check-up</h3>
+                <p class="mb-6">
+                  При прохождении комплексного обследования до конца месяца
+                </p>
+                <ul class="space-y-2 mb-6">
+                  <li>✓ Полная диагностика организма</li>
+                  <li>✓ Консультации всех специалистов</li>
+                  <li>✓ Персональный план здоровья</li>
+                </ul>
+                <a
+                  href="#doctors"
+                  class="bg-white text-gold px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition"
+                  >Воспользоваться акцией</a
+                >
+              </div>
+            </div>
+            <div class="relative overflow-hidden rounded-2xl shadow-xl">
+              <div
+                class="bg-gradient-to-br from-gray-700 to-gray-900 p-8 text-white"
+              >
+                <h3 class="text-2xl font-bold mb-4">Семейная карта</h3>
+                <p class="mb-6">Специальные условия для всей семьи</p>
+                <ul class="space-y-2 mb-6">
+                  <li>✓ Скидка 15% на все услуги</li>
+                  <li>✓ Приоритетная запись</li>
+                  <li>✓ Бесплатные консультации</li>
+                </ul>
+                <a
+                  href="#contacts"
+                  class="bg-gold text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition"
+                  >Оформить карту</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" class="container mx-auto px-4 py-16">
+        <h2 class="section-title text-4xl font-bold text-center text-gray-800">
+          Отзывы пациентов
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="testimonial-card">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
+              >
+                АК
+              </div>
+              <div class="ml-4">
+                <h4 class="font-semibold">Анна Казахстанова</h4>
+                <div class="flex text-gold">
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600">
+              Прекрасная клиника! Современное оборудование, внимательный
+              персонал. Особенно хочу отметить профессионализм врачей.
+            </p>
+          </div>
+          <div class="testimonial-card">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
+              >
+                СБ
+              </div>
+              <div class="ml-4">
+                <h4 class="font-semibold">Сергей Беляев</h4>
+                <div class="flex text-gold">
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600">
+              Проходил полное обследование. Всё на высшем уровне! Результаты
+              получил быстро, врачи всё подробно объяснили.
+            </p>
+          </div>
+          <div class="testimonial-card">
+            <div class="flex items-center mb-4">
+              <div
+                class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold"
+              >
+                МИ
+              </div>
+              <div class="ml-4">
+                <h4 class="font-semibold">Марина Иванова</h4>
+                <div class="flex text-gold">
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i><i class="fas fa-star"></i
+                  ><i class="fas fa-star"></i>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600">
+              Лучший сервис в городе. Записалась через сайт, все очень удобно.
+              Никаких очередей, приняли вовремя.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contacts" class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+          <h2
+            class="section-title text-4xl font-bold text-center text-gray-800"
+          >
+            Контакты
+          </h2>
+          <div class="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <i class="fas fa-map-marker-alt text-4xl text-gold mb-4"></i>
+              <h3 class="text-xl font-bold">Наш адрес</h3>
+              <p class="text-gray-600">
+                г. Усть-Каменогорск, ул. Медицинская, 1
+              </p>
+            </div>
+            <div>
+              <i class="fas fa-phone-alt text-4xl text-gold mb-4"></i>
+              <h3 class="text-xl font-bold">Телефон</h3>
+              <p class="text-gray-600">+7 (777) 123-45-67</p>
+            </div>
+            <div>
+              <i class="fas fa-envelope text-4xl text-gold mb-4"></i>
+              <h3 class="text-xl font-bold">Email</h3>
+              <p class="text-gray-600">info@statusmedical.kz</p>
+            </div>
+          </div>
+          <div class="mt-12 rounded-lg overflow-hidden shadow-xl">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2636.23098524164!2d82.6149176156059!3d49.95478497941019!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x42c34b40b08d4b31%3A0x8e8e8e8e8e8e8e8e!2z0YPQuy4g0JzQtdC00LjQutC40L3RgdC60LDRjywgMSwg0KPQmdGC0LXRgNCw0L3QvtCz0L7RgNC-0LIsINC60L7QtNC10YDQvtC_0LDQu9C-0L3QtdC90YHQutCw0Y8g0L7QsdC70LDRgdGC0Yw!5e0!3m2!1sru!2skz!4v1628169111956!5m2!1sru!2skz"
+              width="100%"
+              height="450"
+              style="border: 0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <a
+      rel="noopener"
+      href="https://wa.me/77770001122?text=Здравствуйте, хочу записаться на приём"
+      target="_blank"
+      class="whatsapp-float"
+    >
+      <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <div id="bookingModal" class="modal-overlay">
+      <div class="modal-content">
+        <button
+          onclick="closeBookingModal()"
+          class="absolute top-4 right-6 text-gray-500 hover:text-gray-800 text-2xl"
+          title="Close modal"
+        >
+          ×
+        </button>
+
+        <div id="step1" class="step">
+          <h2 class="text-2xl font-bold text-center mb-2 text-gray-800">
+            Выберите дату и время
+          </h2>
+          <p class="text-center text-gray-600 mb-4">
+            Запись к врачу:
+            <strong id="doctor-name-in-modal" class="text-gold"></strong>
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <div class="calendar-header">
+                <button
+                  title="Previous month"
+                  id="prev-month"
+                  class="text-gold p-2 rounded-full hover:bg-light-gold"
+                ></button>
+                <h3 id="month-year" class="text-xl font-semibold"></h3>
+                <button
+                  id="next-month"
+                  class="text-gold p-2 rounded-full hover:bg-light-gold"
+                >
+                  >
+                </button>
+              </div>
+              <div class="calendar-grid">
+                <div class="calendar-weekday">Пн</div>
+                <div class="calendar-weekday">Вт</div>
+                <div class="calendar-weekday">Ср</div>
+                <div class="calendar-weekday">Чт</div>
+                <div class="calendar-weekday">Пт</div>
+                <div class="calendar-weekday">Сб</div>
+                <div class="calendar-weekday">Вс</div>
+              </div>
+              <div id="calendar-days" class="calendar-grid"></div>
+            </div>
+            <div id="time-slots-wrapper">
+              <div id="time-slots-container" class="hidden">
+                <h3 class="font-semibold mb-3 text-center">
+                  Свободное время на
+                  <span id="selected-date-span" class="text-gold"></span>
+                </h3>
+                <div id="time-slots" class="time-slots"></div>
+                <button
+                  onclick="goToStep(2)"
+                  id="continue-btn"
+                  class="mt-6 w-full bg-gold text-white py-3 rounded-lg hover:bg-opacity-90 transition disabled:bg-gray-400"
+                  disabled
+                >
+                  Продолжить
+                </button>
+              </div>
+              <div id="time-loader" class="loader hidden"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="step2" class="step hidden">
+          <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+            Подтверждение записи
+          </h2>
+          <p class="text-center mb-4">
+            Вы записываетесь: <br />
+            <strong id="summary" class="text-gold text-lg"></strong>
+          </p>
+          <div class="space-y-4">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700"
+                >Ваше имя</label
+              >
+              <input
+                type="text"
+                id="name"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gold focus:border-gold"
+              />
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700"
+                >Ваш телефон</label
+              >
+              <input
+                type="tel"
+                id="phone"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gold focus:border-gold"
+              />
+            </div>
+          </div>
+          <div class="mt-8 flex justify-between">
+            <button
+              onclick="goToStep(1)"
+              class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 transition"
+            >
+              Назад
+            </button>
+            <button
+              id="confirm-booking-btn"
+              class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition flex items-center"
+            >
+              <i class="fab fa-whatsapp mr-2"></i> Отправить менеджеру
+            </button>
+          </div>
+        </div>
+        <div id="step3" class="step hidden text-center">
+          <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+          <h2 class="text-2xl font-bold mb-2 text-gray-800">
+            Запись успешно создана!
+          </h2>
+          <p class="text-gray-600">
+            Наш администратор скоро свяжется с вами для подтверждения.
+          </p>
+          <button
+            onclick="closeBookingModal()"
+            class="mt-6 bg-gold text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+          >
+            Закрыть
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script src="./js/main.js"></script>
+  </body>
+</html>
