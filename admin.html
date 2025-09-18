@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Админ-панель | Status Medical Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./styles/admin.css" />
+  </head>
+  <body class="bg-gray-100">
+    <div id="login-view" class="min-h-screen flex items-center justify-center">
+      <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+        <h1 class="text-2xl font-bold text-center mb-6">Вход в панель</h1>
+        <div class="space-y-4">
+          <div>
+            <label for="login" class="block text-sm font-medium text-gray-700"
+              >Логин</label
+            >
+            <input
+              type="text"
+              id="login"
+              value="admin"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+            />
+          </div>
+          <div>
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700"
+              >Пароль</label
+            >
+            <input
+              type="password"
+              id="password"
+              value="admin"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+            />
+          </div>
+        </div>
+        <p id="login-error" class="text-red-500 text-sm mt-2 text-center"></p>
+        <button
+          id="login-btn"
+          class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mt-6"
+        >
+          Войти
+        </button>
+      </div>
+    </div>
+
+    <div id="admin-panel" class="hidden">
+      <header class="bg-white shadow-md">
+        <div
+          class="container mx-auto px-4 py-3 flex justify-between items-center"
+        >
+          <h1 class="text-xl font-bold">Панель администратора</h1>
+          <div>
+            <span id="user-login" class="mr-4"></span>
+            <button id="logout-btn" class="text-red-500 hover:underline">
+              Выйти
+            </button>
+          </div>
+        </div>
+        <nav class="bg-gray-100 border-b">
+          <div class="container mx-auto px-4 flex space-x-4">
+            <button data-tab="doctors" class="tab-btn active">Врачи</button>
+            <button data-tab="appointments" class="tab-btn">
+              Записи на прием
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <main class="container mx-auto p-4">
+        <section id="doctors-section" class="tab-content">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Управление врачами</h2>
+            <button
+              id="add-doctor-btn"
+              class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+            >
+              Добавить врача
+            </button>
+          </div>
+          <div
+            id="doctors-list"
+            class="bg-white p-4 rounded-lg shadow-md"
+          ></div>
+        </section>
+
+        <section id="appointments-section" class="tab-content hidden">
+          <h2 class="text-2xl font-semibold mb-4">Список записей</h2>
+          <div
+            class="bg-white p-4 rounded-lg shadow-md mb-4 flex items-center space-x-4"
+          >
+            <div>
+              <label for="filter-doctor" class="block text-sm font-medium"
+                >Врач:</label
+              >
+              <select
+                id="filter-doctor"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              ></select>
+            </div>
+            <div>
+              <label for="filter-date" class="block text-sm font-medium"
+                >Дата:</label
+              >
+              <input
+                type="date"
+                id="filter-date"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+            <button
+              id="filter-btn"
+              class="self-end bg-blue-500 text-white px-4 py-2 rounded-lg"
+            >
+              Применить
+            </button>
+          </div>
+          <div
+            id="appointments-list"
+            class="bg-white p-4 rounded-lg shadow-md"
+          ></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="doctor-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h2 id="modal-title" class="text-2xl font-bold mb-4">Добавить врача</h2>
+        <form id="doctor-form" class="space-y-4">
+          <input type="hidden" id="doctor-id" />
+          <div>
+            <label for="doctor-name">Имя</label>
+            <input type="text" id="doctor-name" required />
+          </div>
+          <div>
+            <label for="doctor-specialty">Специальность</label>
+            <input type="text" id="doctor-specialty" required />
+          </div>
+          <div>
+            <label for="doctor-startedAt"
+              >Дата начала практики (ГГГГ-ММ-ДД)</label
+            >
+            <input type="date" id="doctor-startedAt" required />
+          </div>
+          <div>
+            <label for="doctor-degree">Степень/Категория</label>
+            <input type="text" id="doctor-degree" />
+          </div>
+          <div>
+            <label for="doctor-imageUrl">URL изображения</label>
+            <input type="text" id="doctor-imageUrl" />
+          </div>
+          <div class="flex justify-end space-x-2 mt-4">
+            <button
+              type="button"
+              id="cancel-doctor-btn"
+              class="bg-gray-300 px-4 py-2 rounded"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Сохранить
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // --- ОБЩИЕ НАСТРОЙКИ И ПЕРЕМЕННЫЕ ---
+      const API_BASE_URL = "/api";
+      let token = localStorage.getItem("jwt_token");
+      let user = JSON.parse(localStorage.getItem("user_info"));
+
+      // --- ЭЛЕМЕНТЫ DOM ---
+      const loginView = document.getElementById("login-view");
+      const adminPanel = document.getElementById("admin-panel");
+
+      // --- ФУНКЦИЯ ДЛЯ API-ЗАПРОСОВ ---
+      async function apiFetch(url, options = {}) {
+        const headers = {
+          "Content-Type": "application/json",
+          ...options.headers,
+        };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(API_BASE_URL + url, {
+          ...options,
+          headers,
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          logout();
+          throw new Error("Unauthorized");
+        }
+        return response;
+      }
+
+      // --- ЛОГИКА АВТОРИЗАЦИИ ---
+      async function login() {
+        const loginInput = document.getElementById("login").value;
+        const passwordInput = document.getElementById("password").value;
+        const errorEl = document.getElementById("login-error");
+        errorEl.textContent = "";
+
+        try {
+          const response = await fetch(API_BASE_URL + "/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              login: loginInput,
+              password: passwordInput,
+            }),
+          });
+
+          if (!response.ok) throw new Error("Неверный логин или пароль");
+
+          const data = await response.json();
+          token = data.token;
+          user = data.user;
+          localStorage.setItem("jwt_token", token);
+          localStorage.setItem("user_info", JSON.stringify(user));
+
+          showAdminPanel();
+        } catch (err) {
+          errorEl.textContent = err.message;
+        }
+      }
+
+      function logout() {
+        token = null;
+        user = null;
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("user_info");
+        loginView.style.display = "flex";
+        adminPanel.style.display = "none";
+      }
+
+      function showAdminPanel() {
+        loginView.style.display = "none";
+        adminPanel.style.display = "block";
+        document.getElementById(
+          "user-login"
+        ).textContent = `Пользователь: ${user.login}`;
+        loadDoctors();
+        loadAppointments();
+      }
+
+      // --- ЛОГИКА УПРАВЛЕНИЯ ВРАЧАМИ ---
+      async function loadDoctors() {
+        try {
+          const response = await apiFetch("/doctors");
+          const doctors = await response.json();
+          const listEl = document.getElementById("doctors-list");
+          const filterSelect = document.getElementById("filter-doctor");
+
+          listEl.innerHTML = `
+                    <div class="grid-table header">
+                        <div>ID</div><div>Имя</div><div>Специальность</div><div>Стаж</div><div>Действия</div>
+                    </div>
+                `;
+          filterSelect.innerHTML = '<option value="">Все врачи</option>';
+
+          doctors.forEach((doc) => {
+            listEl.innerHTML += `
+                        <div class="grid-table">
+                            <div>${doc.id}</div>
+                            <div>${doc.name}</div>
+                            <div>${doc.specialty}</div>
+                            <div>${doc.experience}</div>
+                            <div class="actions">
+                                <button onclick="openEditDoctorModal(${doc.id})"><i class="fas fa-edit text-blue-500"></i></button>
+                                <button onclick="deleteDoctor(${doc.id})"><i class="fas fa-trash text-red-500"></i></button>
+                            </div>
+                        </div>
+                    `;
+            filterSelect.innerHTML += `<option value="${doc.id}">${doc.name}</option>`;
+          });
+        } catch (err) {
+          console.error("Ошибка загрузки врачей:", err);
+        }
+      }
+
+      async function saveDoctor(event) {
+        event.preventDefault();
+        const id = document.getElementById("doctor-id").value;
+        const doctorData = {
+          name: document.getElementById("doctor-name").value,
+          specialty: document.getElementById("doctor-specialty").value,
+          startedAt: document.getElementById("doctor-startedAt").value,
+          degree: document.getElementById("doctor-degree").value,
+          imageUrl: document.getElementById("doctor-imageUrl").value,
+        };
+
+        try {
+          const url = id ? `/doctors/${id}` : "/doctors";
+          const method = id ? "PUT" : "POST";
+          const response = await apiFetch(url, {
+            method: method,
+            body: JSON.stringify(doctorData),
+          });
+
+          if (!response.ok) throw new Error("Не удалось сохранить врача");
+
+          closeDoctorModal();
+          loadDoctors();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      async function deleteDoctor(id) {
+        if (!confirm(`Вы уверены, что хотите удалить врача с ID ${id}?`))
+          return;
+        try {
+          const response = await apiFetch(`/doctors/${id}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Не удалось удалить врача");
+          loadDoctors();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      function openAddDoctorModal() {
+        document.getElementById("doctor-form").reset();
+        document.getElementById("doctor-id").value = "";
+        document.getElementById("modal-title").textContent = "Добавить врача";
+        document.getElementById("doctor-modal").classList.add("active");
+      }
+
+      async function openEditDoctorModal(id) {
+        try {
+          const response = await apiFetch("/doctors"); // Бэкенд не имеет GET /doctors/:id, получаем всех
+          const doctors = await response.json();
+          const doctor = doctors.find((d) => d.id === id);
+          if (!doctor) throw new Error("Врач не найден");
+
+          // Бэкенд возвращает только стаж, а для редактирования нужна дата начала
+          // Для простоты оставим поле пустым. В идеале GET /doctors/:id должен возвращать startedAt
+          document.getElementById("doctor-id").value = doctor.id;
+          document.getElementById("doctor-name").value = doctor.name;
+          document.getElementById("doctor-specialty").value = doctor.specialty;
+          document.getElementById("doctor-degree").value = doctor.degree || "";
+          document.getElementById("doctor-imageUrl").value =
+            doctor.imageUrl || "";
+          document.getElementById("doctor-startedAt").value = ""; // Оставляем пустым
+
+          document.getElementById("modal-title").textContent =
+            "Редактировать врача";
+          document.getElementById("doctor-modal").classList.add("active");
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      function closeDoctorModal() {
+        document.getElementById("doctor-modal").classList.remove("active");
+      }
+
+      // --- ЛОГИКА УПРАВЛЕНИЯ ЗАПИСЯМИ ---
+      async function loadAppointments() {
+        const doctorId = document.getElementById("filter-doctor").value;
+        const date = document.getElementById("filter-date").value;
+
+        let query = new URLSearchParams();
+        if (doctorId) query.append("doctorId", doctorId);
+        if (date) query.append("date", date);
+
+        try {
+          const response = await apiFetch(`/appointments?${query.toString()}`);
+          const data = await response.json();
+          const listEl = document.getElementById("appointments-list");
+
+          listEl.innerHTML = `
+                    <div class="grid-table header">
+                        <div>ID</div><div>Врач</div><div>Дата</div><div>Время</div><div>Пациент</div><div>Телефон</div><div>Действия</div>
+                    </div>
+                `;
+          if (data.items.length === 0) {
+            listEl.innerHTML +=
+              '<p class="text-center p-4">Записей не найдено.</p>';
+            return;
+          }
+          data.items.forEach((appt) => {
+            listEl.innerHTML += `
+                        <div class="grid-table">
+                            <div>${appt.id}</div>
+                            <div>${appt.doctorName}</div>
+                            <div>${new Date(appt.date).toLocaleDateString(
+                              "ru-RU"
+                            )}</div>
+                            <div>${appt.time}</div>
+                            <div>${appt.patientName}</div>
+                            <div>${appt.patientPhone}</div>
+                            <div class="actions">
+                                <button onclick="deleteAppointment(${
+                                  appt.id
+                                })"><i class="fas fa-times text-red-500"></i></button>
+                            </div>
+                        </div>
+                    `;
+          });
+        } catch (err) {
+          console.error("Ошибка загрузки записей:", err);
+          document.getElementById(
+            "appointments-list"
+          ).innerHTML = `<p class="text-center p-4 text-red-500">Не удалось загрузить записи.</p>`;
+        }
+      }
+
+      async function deleteAppointment(id) {
+        if (!confirm(`Вы уверены, что хотите отменить запись с ID ${id}?`))
+          return;
+        try {
+          const response = await apiFetch(`/appointments/${id}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Не удалось отменить запись");
+          loadAppointments();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      // --- ОБЩИЕ ОБРАБОТЧИКИ СОБЫТИЙ ---
+      document.addEventListener("DOMContentLoaded", () => {
+        if (token && user) {
+          showAdminPanel();
+        } else {
+          loginView.style.display = "flex";
+          adminPanel.style.display = "none";
+        }
+
+        document.getElementById("login-btn").addEventListener("click", login);
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            document
+              .querySelectorAll(".tab-content")
+              .forEach((c) => c.classList.add("hidden"));
+            document
+              .getElementById(`${btn.dataset.tab}-section`)
+              .classList.remove("hidden");
+          });
+        });
+
+        document
+          .getElementById("add-doctor-btn")
+          .addEventListener("click", openAddDoctorModal);
+        document
+          .getElementById("cancel-doctor-btn")
+          .addEventListener("click", closeDoctorModal);
+        document
+          .getElementById("doctor-form")
+          .addEventListener("submit", saveDoctor);
+        document
+          .getElementById("filter-btn")
+          .addEventListener("click", loadAppointments);
+      });
+    </script>
+  </body>
+</html>

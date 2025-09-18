@@ -21,6 +21,9 @@ function toggleMobileMenu() {
     document.getElementById("mobileMenu").classList.toggle("active");
 }
 
+// --- Настройка для работы с API ---
+const API_BASE_URL = '/api'; // Базовый путь для всех запросов к бэкенду
+
 // --- Booking Modal & Calendar Logic ---
 const bookingModal = document.getElementById('bookingModal');
 const bookingSteps = document.querySelectorAll('#bookingModal .step');
@@ -30,11 +33,10 @@ let selectedDate = null;
 let selectedTime = null;
 
 async function openBookingModal(doctorId, doctorName) {
-    if (!doctorId || !doctorName) {
-        selectedDoctor = { id: 0, name: 'любому специалисту' };
-    } else {
-        selectedDoctor = { id: doctorId, name: doctorName };
-    }
+    // Если врач не выбран (клик по общей кнопке), то ID будет null.
+    // Бэкенд должен уметь это обрабатывать, либо нужно выбирать врача по умолчанию.
+    // Пока что оставим ID=null, если врач не выбран.
+    selectedDoctor = { id: doctorId, name: doctorName || 'любому специалисту' };
     
     document.getElementById('doctor-name-in-modal').textContent = selectedDoctor.name;
     bookingModal.classList.add('active');
@@ -50,7 +52,7 @@ function closeBookingModal() {
 
 function goToBookingStep(stepNumber, reset = false) {
     bookingSteps.forEach(step => step.classList.add('hidden'));
-    const stepElement = document.getElementById(`booking-step${stepNumber}`);
+    const stepElement = document.getElementById(`step${stepNumber}`); // Используем ID из вашего HTML
     if (stepElement) {
         stepElement.classList.remove('hidden');
     }
@@ -69,38 +71,46 @@ async function generateCalendar(year, month) {
     const monthYearEl = document.getElementById('month-year');
     const calendarDaysEl = document.getElementById('calendar-days');
     if (!monthYearEl || !calendarDaysEl) return;
-    calendarDaysEl.innerHTML = '';
+    calendarDaysEl.innerHTML = '<div class="loader" style="grid-column: span 7;"></div>';
     
     const firstDayOfMonth = new Date(year, month, 1);
     monthYearEl.textContent = firstDayOfMonth.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
     
-    let startingDay = firstDayOfMonth.getDay();
-    startingDay = startingDay === 0 ? 6 : startingDay - 1; 
-    for (let i = 0; i < startingDay; i++) {
-        calendarDaysEl.innerHTML += `<div class="calendar-day other-month"></div>`;
-    }
-    
-    const availabilityData = await fakeBackend.getMonthlyAvailability(selectedDoctor.id, year, month + 1);
-    
-    availabilityData.forEach(dayData => {
-        const day = dayData.day;
-        const dayEl = document.createElement('div');
-        dayEl.textContent = day;
-        dayEl.classList.add('calendar-day');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const thisDate = new Date(year, month, day);
+    try {
+        const response = await fetch(`${API_BASE_URL}/availability?doctorId=${selectedDoctor.id}&year=${year}&month=${month + 1}`);
+        if (!response.ok) throw new Error('Ошибка загрузки календаря');
+        const availabilityData = await response.json();
 
-        if (thisDate < today) {
-            dayEl.classList.add('past-day');
-        } else {
-            dayEl.classList.add(dayData.status);
-            if (dayData.status === 'available') {
-                dayEl.onclick = () => selectDay(dayEl, year, month, day);
-            }
+        calendarDaysEl.innerHTML = '';
+        let startingDay = firstDayOfMonth.getDay();
+        startingDay = startingDay === 0 ? 6 : startingDay - 1; 
+        for (let i = 0; i < startingDay; i++) {
+            calendarDaysEl.innerHTML += `<div class="calendar-day other-month"></div>`;
         }
-        calendarDaysEl.appendChild(dayEl);
-    });
+        
+        availabilityData.forEach(dayData => {
+            const day = dayData.day;
+            const dayEl = document.createElement('div');
+            dayEl.textContent = day;
+            dayEl.classList.add('calendar-day');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const thisDate = new Date(year, month, day);
+
+            if (thisDate < today) {
+                dayEl.classList.add('past-day');
+            } else {
+                dayEl.classList.add(dayData.status);
+                if (dayData.status === 'available') {
+                    dayEl.onclick = () => selectDay(dayEl, year, month, day);
+                }
+            }
+            calendarDaysEl.appendChild(dayEl);
+        });
+    } catch (error) {
+        console.error("Ошибка при генерации календаря:", error);
+        calendarDaysEl.innerHTML = `<p style="grid-column: span 7;" class="text-center text-red-500">Не удалось загрузить расписание</p>`;
+    }
 }
 
 async function selectDay(dayElement, year, month, day) {
@@ -114,25 +124,32 @@ async function selectDay(dayElement, year, month, day) {
     timeSlotsContainer.classList.add('hidden');
     timeLoader.classList.remove('hidden');
 
-    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const timeSlotsData = await fakeBackend.getDailyTimeslots(selectedDoctor.id, dateString);
+    try {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const response = await fetch(`${API_BASE_URL}/timeslots?doctorId=${selectedDoctor.id}&date=${dateString}`);
+        if (!response.ok) throw new Error('Ошибка загрузки времени');
+        const timeSlotsData = await response.json();
 
-    const timeSlotsEl = document.getElementById('time-slots');
-    timeSlotsEl.innerHTML = '';
-    timeSlotsData.forEach(slot => {
-        const slotEl = document.createElement('div');
-        slotEl.textContent = slot.time;
-        slotEl.classList.add('time-slot', slot.status);
-        if (slot.status === 'available') {
-            slotEl.onclick = () => selectTime(slotEl, slot.time);
-        }
-        timeSlotsEl.appendChild(slotEl);
-    });
-
-    timeLoader.classList.add('hidden');
-    timeSlotsContainer.classList.remove('hidden');
-    document.getElementById('continue-btn').disabled = true;
-    selectedTime = null;
+        const timeSlotsEl = document.getElementById('time-slots');
+        timeSlotsEl.innerHTML = '';
+        timeSlotsData.forEach(slot => {
+            const slotEl = document.createElement('div');
+            slotEl.textContent = slot.time;
+            slotEl.classList.add('time-slot', slot.status);
+            if (slot.status === 'available') {
+                slotEl.onclick = () => selectTime(slotEl, slot.time);
+            }
+            timeSlotsEl.appendChild(slotEl);
+        });
+    } catch (error) {
+        console.error("Ошибка при загрузке времени:", error);
+        document.getElementById('time-slots').innerHTML = `<p class="text-center text-red-500">Ошибка</p>`;
+    } finally {
+        timeLoader.classList.add('hidden');
+        timeSlotsContainer.classList.remove('hidden');
+        document.getElementById('continue-btn').disabled = true;
+        selectedTime = null;
+    }
 }
 
 function selectTime(timeElement, time) {
@@ -142,28 +159,61 @@ function selectTime(timeElement, time) {
     document.getElementById('continue-btn').disabled = false;
 }
 
-function confirmAppointment() {
+async function confirmAppointment() {
     const nameInput = document.getElementById('name');
-    if (!nameInput.value.trim()) {
-        alert('Пожалуйста, укажите ваше имя.');
+    const phoneInput = document.getElementById('phone');
+    if (!nameInput.value.trim() || !phoneInput.value.trim()) {
+        alert('Пожалуйста, укажите ваше имя и телефон.');
         return;
     }
 
-    const managerWhatsAppNumber = "77770001122"; 
-    const clientName = nameInput.value.trim();
-    const doctorName = selectedDoctor.name;
-    const date = selectedDate.toLocaleDateString('ru-RU');
-    const time = selectedTime;
-    
-    let message = `Здравствуйте! Меня зовут ${clientName}. `;
-    message += `Хочу записаться на приём к врачу ${doctorName} на ${date} в ${time}.`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${managerWhatsAppNumber}?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-    closeBookingModal();
+    const appointmentData = {
+        doctorId: selectedDoctor.id,
+        date: selectedDate.toISOString().split('T')[0],
+        time: selectedTime,
+        patientName: nameInput.value.trim(),
+        patientPhone: phoneInput.value.trim()
+    };
+
+    const confirmBtn = document.getElementById('confirm-booking-btn');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Сохраняем...`;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/book`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appointmentData)
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Ошибка при создании записи');
+        }
+
+        const managerWhatsAppNumber = "77761766001"; 
+        const clientName = appointmentData.patientName;
+        const doctorName = selectedDoctor.name;
+        const date = selectedDate.toLocaleDateString('ru-RU');
+        
+        let message = `Здравствуйте! Меня зовут ${clientName}. `;
+        message += `Я успешно записался(ась) на приём к врачу ${doctorName} на ${date} в ${selectedTime}.`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${managerWhatsAppNumber}?text=${encodedMessage}`;
+        
+        window.open(whatsappUrl, '_blank');
+        closeBookingModal();
+
+    } catch (error) {
+        console.error("Ошибка записи:", error);
+        alert(`Не удалось записаться. ${error.message}`);
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<i class="fab fa-whatsapp mr-2"></i> Отправить менеджеру`;
+    }
 }
+
 
 // --- Review Modal Logic ---
 const reviewModal = document.getElementById('reviewModal');
@@ -200,48 +250,52 @@ stars.forEach(star => {
 });
 
 
-// --- Имитация бэкенда и инициализация страницы ---
-const fakeBackend = {
-    getMonthlyAvailability: async (doctorId, year, month) => { await new Promise(res => setTimeout(res, 500)); const unavailableDays = [new Date().getDate() + 2, new Date().getDate() + 5]; const daysInMonth = new Date(year, month, 0).getDate(); return Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, status: unavailableDays.includes(i + 1) ? 'unavailable' : 'available' })); },
-    getDailyTimeslots: async (doctorId, date) => { await new Promise(res => setTimeout(res, 500)); return [ { time: "09:00", status: "available" }, { time: "09:30", status: "unavailable" }, { time: "10:00", status: "available" }, { time: "10:30", status: "available" }, { time: "11:00", status: "unavailable" }, { time: "11:30", status: "available" }]; },
-    getApprovedReviews: async () => { await new Promise(res => setTimeout(res, 500)); return [ { name: "Анна К.", text: "Прекрасная клиника! Современное оборудование, внимательный персонал. Особенно хочу отметить профессионализм врачей.", rating: 5 }, { name: "Сергей Б.", text: "Проходил полное обследование. Всё на высшем уровне! Результаты получил быстро, врачи всё подробно объяснили.", rating: 5 }, { name: "Марина И.", text: "Лучший сервис в городе. Записалась через сайт, все очень удобно. Никаких очередей, приняли вовремя.", rating: 5 }, { name: "Ерлан Н.", text: "Очень доволен консультацией кардиолога. Внимательный и грамотный специалист.", rating: 4 }]; },
-    submitNewReview: async (reviewData) => { console.log("ОТПРАВКА ОТЗЫВА АДМИНУ:", reviewData); await new Promise(res => setTimeout(res, 1000)); return { success: true }; },
-    getDoctors: async () => { await new Promise(res => setTimeout(res, 100)); return [ { id: 1, name: "Иванов Александр", specialty: "Главный терапевт", experience: "15 лет", degree: "Врач высшей категории", imageUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop" }, { id: 2, name: "Петрова Мария", specialty: "Кардиолог", experience: "12 лет", degree: "Кандидат медицинских наук", imageUrl: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop" }, { id: 3, name: "Сидоров Дмитрий", specialty: "Хирург", experience: "20 лет", degree: "Доктор медицинских наук", imageUrl: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop" }, { id: 4, name: "Ковалева Ольга", specialty: "Педиатр", experience: "10 лет", degree: "Врач первой категории", imageUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop" }]; }
-};
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- Инициализация всех компонентов ---
+    const fakeBackendForReviews = {
+        getApprovedReviews: async () => { await new Promise(res => setTimeout(res, 500)); return [ { name: "Анна К.", text: "Прекрасная клиника! Современное оборудование, внимательный персонал.", rating: 5 }, { name: "Сергей Б.", text: "Проходил полное обследование. Всё на высшем уровне!", rating: 5 }]; },
+        submitNewReview: async (reviewData) => { console.log("ОТПРАВКА ОТЗЫВА АДМИНУ:", reviewData); await new Promise(res => setTimeout(res, 1000)); return { success: true }; },
+    };
 
     // Загрузка врачей
     const doctorsContainer = document.getElementById('doctors-container');
     if (doctorsContainer) {
-        fakeBackend.getDoctors().then(doctorsData => {
-            doctorsContainer.innerHTML = '';
-            doctorsData.forEach(doctor => {
-                const doctorCardHTML = `
-                    <div class="swiper-slide h-auto">
-                        <div class="doctor-card">
-                            <img src="${doctor.imageUrl}" alt="Доктор ${doctor.name}" class="w-full h-64 object-cover" />
-                            <div class="p-6">
-                                <div>
-                                    <h3 class="text-xl font-bold mb-2">${doctor.name}</h3>
-                                    <p class="text-gold mb-2">${doctor.specialty}</p>
-                                    <p class="text-gray-600 text-sm mb-4">Стаж работы: ${doctor.experience}<br />${doctor.degree}</p>
+        fetch(`${API_BASE_URL}/doctors`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки списка врачей');
+                return response.json();
+            })
+            .then(doctorsData => {
+                doctorsContainer.innerHTML = '';
+                doctorsData.forEach(doctor => {
+                    const doctorCardHTML = `
+                        <div class="swiper-slide h-auto">
+                            <div class="doctor-card">
+                                <img src="${doctor.imageUrl}" alt="Доктор ${doctor.name}" class="w-full h-64 object-cover" />
+                                <div class="p-6">
+                                    <div>
+                                        <h3 class="text-xl font-bold mb-2">${doctor.name}</h3>
+                                        <p class="text-gold mb-2">${doctor.specialty}</p>
+                                        <p class="text-gray-600 text-sm mb-4">Стаж работы: ${doctor.experience}<br />${doctor.degree}</p>
+                                    </div>
+                                    <button onclick="openBookingModal(${doctor.id}, '${doctor.name}')" class="w-full mt-4 bg-gold text-white py-2 rounded-lg hover:bg-opacity-90 transition">Записаться на приём</button>
                                 </div>
-                                <button onclick="openBookingModal(${doctor.id}, '${doctor.name}')" class="w-full mt-4 bg-gold text-white py-2 rounded-lg hover:bg-opacity-90 transition">Записаться на приём</button>
                             </div>
-                        </div>
-                    </div>`;
-                doctorsContainer.innerHTML += doctorCardHTML;
+                        </div>`;
+                    doctorsContainer.innerHTML += doctorCardHTML;
+                });
+                new Swiper('.doctor-swiper', { slidesPerView: 1, spaceBetween: 30, loop: true, pagination: { el: '.swiper-pagination', clickable: true }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
+            })
+            .catch(error => {
+                console.error("Ошибка при загрузке врачей:", error);
+                doctorsContainer.innerHTML = `<p class="text-center text-red-500 col-span-full">Не удалось загрузить список специалистов</p>`;
             });
-            new Swiper('.doctor-swiper', { slidesPerView: 1, spaceBetween: 30, loop: true, pagination: { el: '.swiper-pagination', clickable: true }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
-        });
     }
 
-    // Загрузка отзывов
+    // Загрузка отзывов (в демо-режиме)
     const testimonialsContainer = document.getElementById('testimonials-container');
     if (testimonialsContainer) {
-        fakeBackend.getApprovedReviews().then(reviews => {
+        fakeBackendForReviews.getApprovedReviews().then(reviews => {
             testimonialsContainer.innerHTML = '';
             reviews.forEach(review => {
                 let starsHTML = '';
@@ -267,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Отправка нового отзыва
+    // Отправка нового отзыва (в демо-режиме)
     const submitReviewBtn = document.getElementById('submit-review-btn');
     if (submitReviewBtn) {
         submitReviewBtn.addEventListener('click', async () => {
@@ -278,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const reviewData = { name, text, rating: currentRating };
-            const response = await fakeBackend.submitNewReview(reviewData);
+            const response = await fakeBackendForReviews.submitNewReview(reviewData);
             if (response.success) {
                 document.getElementById('review-step1').classList.add('hidden');
                 document.getElementById('review-step2').classList.remove('hidden');
@@ -309,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('confirm-booking-btn')?.addEventListener('click', confirmAppointment);
     
-    const backBtn = document.getElementById('booking-back-btn');
+    const backBtn = document.querySelector('#bookingModal .step button[onclick="goToStep(1)"]');
     if (backBtn) {
         backBtn.addEventListener('click', () => goToBookingStep(1));
     }
