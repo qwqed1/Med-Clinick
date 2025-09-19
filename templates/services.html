@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Услуги | Status Medical Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="../styles/style.css" />
+  </head>
+  <body>
+    <header class="sticky top-0 z-50 bg-white shadow-lg">
+      <div
+        class="bg-beige-light py-2 px-4 text-sm text-brown-dark border-b border-gold/20"
+      >
+        <div
+          class="container mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+              <i class="fas fa-map-marker-alt text-gold mr-2"></i>
+              <span>г. Усть-Каменогорск, ул. Медицинская, 1</span>
+            </div>
+            <div class="hidden lg:flex items-center">
+              <i class="fas fa-clock text-gold mr-2"></i>
+              <span>Пн-Сб: 08:00 - 20:00</span>
+            </div>
+          </div>
+          <div class="mt-2 md:mt-0">
+            <a
+              href="tel:+77771234567"
+              class="flex items-center font-bold text-brown-dark hover:text-gold transition"
+            >
+              <i class="fas fa-phone-alt text-gold mr-2"></i>
+              <span>+7 776 176 6001</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <nav class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <a href="Index.html" class="flex items-center space-x-2">
+            <div
+              class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-heartbeat text-white"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gold">Status Medical Center</h1>
+          </a>
+          <div class="hidden md:flex space-x-8">
+            <a href="Index.html" class="nav-link text-gray-700 hover:text-gold"
+              >Главная</a
+            >
+            <a
+              href="Index.html#about"
+              class="nav-link text-gray-700 hover:text-gold"
+              >О клинике</a
+            >
+            <a
+              href="services.html"
+              class="nav-link text-gray-700 hover:text-gold"
+              >Услуги</a
+            >
+            <a
+              href="doctors.html"
+              class="nav-link text-gray-700 hover:text-gold"
+              >Специалисты</a
+            >
+            <a
+              href="promotions.html"
+              class="nav-link text-gray-700 hover:text-gold"
+              >Акции</a
+            >
+            <a
+              href="Index.html#contacts"
+              class="nav-link text-gray-700 hover:text-gold"
+              >Контакты</a
+            >
+          </div>
+          <button
+            class="md:hidden text-gray-700"
+            onclick="toggleMobileMenu()"
+            title="Toggle mobile menu"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+        </div>
+      </nav>
+
+      <div
+        id="mobileMenu"
+        class="mobile-menu fixed top-0 left-0 w-64 h-full bg-white shadow-xl z-50 md:hidden"
+      >
+        <div class="p-4">
+          <button
+            onclick="toggleMobileMenu()"
+            class="text-gray-700 mb-6"
+            title="Close menu"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+          <div class="flex flex-col space-y-4">
+            <a
+              href="Index.html"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Главная</a
+            >
+            <a
+              href="Index.html#about"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >О клинике</a
+            >
+            <a
+              href="services.html"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Услуги</a
+            >
+            <a
+              href="doctors.html"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Специалисты</a
+            >
+            <a
+              href="promotions.html"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Акции</a
+            >
+            <a
+              href="Index.html#contacts"
+              onclick="toggleMobileMenu()"
+              class="text-gray-700 hover:text-gold"
+              >Контакты</a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+      <h1 class="section-title text-4xl font-bold text-center text-gray-800">
+        Наши услуги
+      </h1>
+
+      <div
+        id="services-full-list"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        <div class="loader-placeholder"></div>
+        <div class="loader-placeholder"></div>
+        <div class="loader-placeholder"></div>
+      </div>
+    </main>
+
+    <footer class="bg-brown-dark text-white">
+      <div class="container mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Status Medical Center</h3>
+            <p class="text-gray-400">Ваше здоровье - наша забота.</p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Навигация</h3>
+            <ul>
+              <li>
+                <a href="Index.html#about" class="hover:text-brand-gold"
+                  >О клинике</a
+                >
+              </li>
+              <li>
+                <a href="services.html" class="hover:text-brand-gold">Услуги</a>
+              </li>
+              <li>
+                <a href="doctors.html" class="hover:text-brand-gold"
+                  >Специалисты</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Контакты</h3>
+            <p class="text-gray-400">г. Усть-Каменогорск, ул. Медицинская, 1</p>
+            <p class="text-gray-400">Телефон: +7 (777) 123-45-67</p>
+            <p class="text-gray-400">Email: info@statusmedical.kz</p>
+          </div>
+        </div>
+        <div
+          class="mt-8 border-t border-gray-700 pt-6 text-center text-gray-500"
+        >
+          &copy; 2025 Status Medical Center. Все права защищены.
+        </div>
+      </div>
+    </footer>
+
+    <div id="bookingModal" class="modal-overlay"></div>
+    <div id="reviewModal" class="modal-overlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="../js/main.js"></script>
+  </body>
+</html>

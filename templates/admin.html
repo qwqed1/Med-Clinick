@@ -9,7 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="./styles/admin.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
   </head>
   <body class="bg-gray-100">
     <div id="login-view" class="min-h-screen flex items-center justify-center">
@@ -177,16 +177,13 @@
     </div>
 
     <script>
-      // --- ОБЩИЕ НАСТРОЙКИ И ПЕРЕМЕННЫЕ ---
       const API_BASE_URL = "/api";
       let token = localStorage.getItem("jwt_token");
       let user = JSON.parse(localStorage.getItem("user_info"));
 
-      // --- ЭЛЕМЕНТЫ DOM ---
       const loginView = document.getElementById("login-view");
       const adminPanel = document.getElementById("admin-panel");
 
-      // --- ФУНКЦИЯ ДЛЯ API-ЗАПРОСОВ ---
       async function apiFetch(url, options = {}) {
         const headers = {
           "Content-Type": "application/json",
@@ -195,12 +192,10 @@
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         }
-
         const response = await fetch(API_BASE_URL + url, {
           ...options,
           headers,
         });
-
         if (response.status === 401 || response.status === 403) {
           logout();
           throw new Error("Unauthorized");
@@ -208,7 +203,6 @@
         return response;
       }
 
-      // --- ЛОГИКА АВТОРИЗАЦИИ ---
       async function login() {
         const loginInput = document.getElementById("login").value;
         const passwordInput = document.getElementById("password").value;
@@ -224,15 +218,12 @@
               password: passwordInput,
             }),
           });
-
           if (!response.ok) throw new Error("Неверный логин или пароль");
-
           const data = await response.json();
           token = data.token;
           user = data.user;
           localStorage.setItem("jwt_token", token);
           localStorage.setItem("user_info", JSON.stringify(user));
-
           showAdminPanel();
         } catch (err) {
           errorEl.textContent = err.message;
@@ -258,34 +249,16 @@
         loadAppointments();
       }
 
-      // --- ЛОГИКА УПРАВЛЕНИЯ ВРАЧАМИ ---
       async function loadDoctors() {
         try {
           const response = await apiFetch("/doctors");
           const doctors = await response.json();
           const listEl = document.getElementById("doctors-list");
           const filterSelect = document.getElementById("filter-doctor");
-
-          listEl.innerHTML = `
-                    <div class="grid-table header">
-                        <div>ID</div><div>Имя</div><div>Специальность</div><div>Стаж</div><div>Действия</div>
-                    </div>
-                `;
+          listEl.innerHTML = `<div class="grid-table header"><div>ID</div><div>Имя</div><div>Специальность</div><div>Стаж</div><div>Действия</div></div>`;
           filterSelect.innerHTML = '<option value="">Все врачи</option>';
-
           doctors.forEach((doc) => {
-            listEl.innerHTML += `
-                        <div class="grid-table">
-                            <div>${doc.id}</div>
-                            <div>${doc.name}</div>
-                            <div>${doc.specialty}</div>
-                            <div>${doc.experience}</div>
-                            <div class="actions">
-                                <button onclick="openEditDoctorModal(${doc.id})"><i class="fas fa-edit text-blue-500"></i></button>
-                                <button onclick="deleteDoctor(${doc.id})"><i class="fas fa-trash text-red-500"></i></button>
-                            </div>
-                        </div>
-                    `;
+            listEl.innerHTML += `<div class="grid-table"><div>${doc.id}</div><div>${doc.name}</div><div>${doc.specialty}</div><div>${doc.experience}</div><div class="actions"><button onclick="openEditDoctorModal(${doc.id})"><i class="fas fa-edit text-blue-500"></i></button><button onclick="deleteDoctor(${doc.id})"><i class="fas fa-trash text-red-500"></i></button></div></div>`;
             filterSelect.innerHTML += `<option value="${doc.id}">${doc.name}</option>`;
           });
         } catch (err) {
@@ -303,7 +276,6 @@
           degree: document.getElementById("doctor-degree").value,
           imageUrl: document.getElementById("doctor-imageUrl").value,
         };
-
         try {
           const url = id ? `/doctors/${id}` : "/doctors";
           const method = id ? "PUT" : "POST";
@@ -311,9 +283,7 @@
             method: method,
             body: JSON.stringify(doctorData),
           });
-
           if (!response.ok) throw new Error("Не удалось сохранить врача");
-
           closeDoctorModal();
           loadDoctors();
         } catch (err) {
@@ -343,22 +313,21 @@
       }
 
       async function openEditDoctorModal(id) {
+        // ВАЖНО: Бэкенд не отдает startedAt в общем списке.
+        // Поэтому при редактировании дату придется вводить заново.
         try {
-          const response = await apiFetch("/doctors"); // Бэкенд не имеет GET /doctors/:id, получаем всех
+          const response = await apiFetch("/doctors");
           const doctors = await response.json();
           const doctor = doctors.find((d) => d.id === id);
           if (!doctor) throw new Error("Врач не найден");
 
-          // Бэкенд возвращает только стаж, а для редактирования нужна дата начала
-          // Для простоты оставим поле пустым. В идеале GET /doctors/:id должен возвращать startedAt
           document.getElementById("doctor-id").value = doctor.id;
           document.getElementById("doctor-name").value = doctor.name;
           document.getElementById("doctor-specialty").value = doctor.specialty;
           document.getElementById("doctor-degree").value = doctor.degree || "";
           document.getElementById("doctor-imageUrl").value =
             doctor.imageUrl || "";
-          document.getElementById("doctor-startedAt").value = ""; // Оставляем пустым
-
+          document.getElementById("doctor-startedAt").value = "";
           document.getElementById("modal-title").textContent =
             "Редактировать врача";
           document.getElementById("doctor-modal").classList.add("active");
@@ -371,48 +340,34 @@
         document.getElementById("doctor-modal").classList.remove("active");
       }
 
-      // --- ЛОГИКА УПРАВЛЕНИЯ ЗАПИСЯМИ ---
       async function loadAppointments() {
         const doctorId = document.getElementById("filter-doctor").value;
         const date = document.getElementById("filter-date").value;
-
         let query = new URLSearchParams();
         if (doctorId) query.append("doctorId", doctorId);
         if (date) query.append("date", date);
-
         try {
           const response = await apiFetch(`/appointments?${query.toString()}`);
           const data = await response.json();
           const listEl = document.getElementById("appointments-list");
-
-          listEl.innerHTML = `
-                    <div class="grid-table header">
-                        <div>ID</div><div>Врач</div><div>Дата</div><div>Время</div><div>Пациент</div><div>Телефон</div><div>Действия</div>
-                    </div>
-                `;
+          listEl.innerHTML = `<div class="grid-table header"><div>ID</div><div>Врач</div><div>Дата</div><div>Время</div><div>Пациент</div><div>Телефон</div><div>Действия</div></div>`;
           if (data.items.length === 0) {
             listEl.innerHTML +=
               '<p class="text-center p-4">Записей не найдено.</p>';
             return;
           }
           data.items.forEach((appt) => {
-            listEl.innerHTML += `
-                        <div class="grid-table">
-                            <div>${appt.id}</div>
-                            <div>${appt.doctorName}</div>
-                            <div>${new Date(appt.date).toLocaleDateString(
-                              "ru-RU"
-                            )}</div>
-                            <div>${appt.time}</div>
-                            <div>${appt.patientName}</div>
-                            <div>${appt.patientPhone}</div>
-                            <div class="actions">
-                                <button onclick="deleteAppointment(${
-                                  appt.id
-                                })"><i class="fas fa-times text-red-500"></i></button>
-                            </div>
-                        </div>
-                    `;
+            listEl.innerHTML += `<div class="grid-table"><div>${
+              appt.id
+            }</div><div>${appt.doctorName}</div><div>${new Date(
+              appt.date
+            ).toLocaleDateString("ru-RU")}</div><div>${appt.time}</div><div>${
+              appt.patientName
+            }</div><div>${
+              appt.patientPhone
+            }</div><div class="actions"><button onclick="deleteAppointment(${
+              appt.id
+            })"><i class="fas fa-times text-red-500"></i></button></div></div>`;
           });
         } catch (err) {
           console.error("Ошибка загрузки записей:", err);
@@ -436,7 +391,6 @@
         }
       }
 
-      // --- ОБЩИЕ ОБРАБОТЧИКИ СОБЫТИЙ ---
       document.addEventListener("DOMContentLoaded", () => {
         if (token && user) {
           showAdminPanel();
@@ -444,10 +398,8 @@
           loginView.style.display = "flex";
           adminPanel.style.display = "none";
         }
-
         document.getElementById("login-btn").addEventListener("click", login);
         document.getElementById("logout-btn").addEventListener("click", logout);
-
         document.querySelectorAll(".tab-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
             document
@@ -462,7 +414,6 @@
               .classList.remove("hidden");
           });
         });
-
         document
           .getElementById("add-doctor-btn")
           .addEventListener("click", openAddDoctorModal);

@@ -1,30 +1,41 @@
-// --- Carousel & Mobile Menu Logic ---
-let currentSlide = 0;
-const slides = document.querySelectorAll(".carousel-slide");
-const slideButtons = document.querySelectorAll("#home .flex.justify-center button");
-function changeSlide(index) {
-    if (!slides.length || !slideButtons.length) return;
-    slides[currentSlide].classList.remove("active");
-    slideButtons[currentSlide].classList.remove("opacity-100");
-    slideButtons[currentSlide].classList.add("opacity-50");
-    currentSlide = index;
-    slides[currentSlide].classList.add("active");
-    slideButtons[currentSlide].classList.add("opacity-100");
-    slideButtons[currentSlide].classList.remove("opacity-50");
-}
-setInterval(() => {
-    let nextSlide = (currentSlide + 1) % slides.length;
-    changeSlide(nextSlide);
-}, 5000);
+// --- ОБЩИЕ НАСТРОЙКИ ---
+const API_BASE_URL = '/api';
 
+// --- ОБЩИЕ ФУНКЦИИ (меню, модальные окна и т.д.) ---
 function toggleMobileMenu() {
-    document.getElementById("mobileMenu").classList.toggle("active");
+    document.getElementById("mobileMenu")?.classList.toggle("active");
 }
 
-// --- Настройка для работы с API ---
-const API_BASE_URL = '/api'; // Базовый путь для всех запросов к бэкенду
+// --- Логика для карусели на главной странице ---
+function initHeroCarousel() {
+    let currentSlide = 0;
+    const slides = document.querySelectorAll(".carousel-slide");
+    const slideButtons = document.querySelectorAll("#home .flex.justify-center button");
+    if (!slides.length || !slideButtons.length) return;
 
-// --- Booking Modal & Calendar Logic ---
+    function changeSlide(index) {
+        slides[currentSlide]?.classList.remove("active");
+        slideButtons[currentSlide]?.classList.remove("opacity-100");
+        slideButtons[currentSlide]?.classList.add("opacity-50");
+        currentSlide = index;
+        slides[currentSlide]?.classList.add("active");
+        slideButtons[currentSlide]?.classList.add("opacity-100");
+        slideButtons[currentSlide]?.classList.remove("opacity-50");
+    }
+    
+    // Глобальная ссылка на интервал, чтобы его можно было остановить
+    window.heroCarouselInterval = setInterval(() => {
+        let nextSlide = (currentSlide + 1) % slides.length;
+        changeSlide(nextSlide);
+    }, 5000);
+
+    slideButtons.forEach((button, index) => {
+        button.addEventListener('click', () => changeSlide(index));
+    });
+}
+
+
+// --- ЛОГИКА ЗАПИСИ НА ПРИЕМ (общая для всех страниц) ---
 const bookingModal = document.getElementById('bookingModal');
 const bookingSteps = document.querySelectorAll('#bookingModal .step');
 let currentDate = new Date();
@@ -33,26 +44,29 @@ let selectedDate = null;
 let selectedTime = null;
 
 async function openBookingModal(doctorId, doctorName) {
-    // Если врач не выбран (клик по общей кнопке), то ID будет null.
-    // Бэкенд должен уметь это обрабатывать, либо нужно выбирать врача по умолчанию.
-    // Пока что оставим ID=null, если врач не выбран.
     selectedDoctor = { id: doctorId, name: doctorName || 'любому специалисту' };
     
-    document.getElementById('doctor-name-in-modal').textContent = selectedDoctor.name;
-    bookingModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    goToBookingStep(1, true);
-    await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    const doctorNameEl = document.getElementById('doctor-name-in-modal');
+    if(doctorNameEl) doctorNameEl.textContent = selectedDoctor.name;
+    
+    if(bookingModal) {
+        bookingModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        goToBookingStep(1, true);
+        await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    }
 }
 
 function closeBookingModal() {
-    bookingModal.classList.remove('active');
-    document.body.style.overflow = '';
+    if(bookingModal) {
+        bookingModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 }
 
 function goToBookingStep(stepNumber, reset = false) {
     bookingSteps.forEach(step => step.classList.add('hidden'));
-    const stepElement = document.getElementById(`step${stepNumber}`); // Используем ID из вашего HTML
+    const stepElement = document.getElementById(`step${stepNumber}`); // Убедимся, что ID правильные
     if (stepElement) {
         stepElement.classList.remove('hidden');
     }
@@ -60,10 +74,12 @@ function goToBookingStep(stepNumber, reset = false) {
     if (reset) {
         selectedDate = null;
         selectedTime = null;
-        document.getElementById('time-slots-container').classList.add('hidden');
-        document.getElementById('continue-btn').disabled = true;
-        document.getElementById('name').value = '';
-        document.getElementById('phone').value = '';
+        document.getElementById('time-slots-container')?.classList.add('hidden');
+        document.getElementById('continue-btn')?.setAttribute('disabled', '');
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        if(nameInput) nameInput.value = '';
+        if(phoneInput) phoneInput.value = '';
     }
 }
 
@@ -132,6 +148,9 @@ async function selectDay(dayElement, year, month, day) {
 
         const timeSlotsEl = document.getElementById('time-slots');
         timeSlotsEl.innerHTML = '';
+        if (timeSlotsData.length === 0) {
+            timeSlotsEl.innerHTML = `<p class="text-center text-gray-500 col-span-full">Нет доступных слотов</p>`;
+        }
         timeSlotsData.forEach(slot => {
             const slotEl = document.createElement('div');
             slotEl.textContent = slot.time;
@@ -197,7 +216,7 @@ async function confirmAppointment() {
         const date = selectedDate.toLocaleDateString('ru-RU');
         
         let message = `Здравствуйте! Меня зовут ${clientName}. `;
-        message += `Я успешно записался(ась) на приём к врачу ${doctorName} на ${date} в ${selectedTime}.`;
+        message += `Я хочу записаться на приём к врачу ${doctorName} на ${date} в ${selectedTime}.`;
         
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/${managerWhatsAppNumber}?text=${encodedMessage}`;
@@ -215,7 +234,7 @@ async function confirmAppointment() {
 }
 
 
-// --- Review Modal Logic ---
+// --- ЛОГИКА ОТЗЫВОВ (общая для всех страниц) ---
 const reviewModal = document.getElementById('reviewModal');
 let currentRating = 0;
 
@@ -237,145 +256,100 @@ function closeReviewModal() {
     document.body.style.overflow = '';
 }
 
-const stars = document.querySelectorAll('#review-rating i');
-stars.forEach(star => {
-    star.addEventListener('mouseover', (e) => {
-        const ratingValue = e.target.dataset.value;
-        stars.forEach(s => { s.classList.toggle('active', s.dataset.value <= ratingValue); });
-    });
-    star.addEventListener('mouseout', () => {
-         stars.forEach(s => { s.classList.toggle('active', s.dataset.value <= currentRating); });
-    });
-    star.addEventListener('click', (e) => { currentRating = e.target.dataset.value; });
+// --- ФАБРИКИ HTML-ЭЛЕМЕНТОВ (чтобы не дублировать код) ---
+function createDoctorCard(doctor) {
+    return `
+        <div class="doctor-card">
+            <img src="${doctor.imageUrl}" alt="Доктор ${doctor.name}" class="w-full h-64 object-cover" />
+            <div class="p-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-2">${doctor.name}</h3>
+                    <p class="text-gold mb-2">${doctor.specialty}</p>
+                    <p class="text-gray-600 text-sm mb-4">Стаж работы: ${doctor.experience}<br />${doctor.degree}</p>
+                </div>
+                <button onclick="openBookingModal(${doctor.id}, '${doctor.name}')" class="w-full mt-4 bg-gold text-white py-2 rounded-lg hover:bg-opacity-90 transition">Записаться на приём</button>
+            </div>
+        </div>`;
+}
+
+// --- ОПРЕДЕЛЕНИЕ ТЕКУЩЕЙ СТРАНИЦЫ И ЗАПУСК НУЖНЫХ ФУНКЦИЙ ---
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname.split('/').pop();
+
+    // Запускаем общие для всех страниц функции
+    initGlobalListeners();
+
+    // Запускаем функции для конкретной страницы
+    if (path === 'Index.html' || path === '') {
+        initHomePage();
+    } else if (path === 'doctors.html') {
+        initDoctorsPage();
+    }
+    // Здесь будут другие страницы...
+
 });
 
+// --- ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ (для всех страниц) ---
+function initGlobalListeners() {
+    // Навигация в шапке
+    document.querySelectorAll('a[href="#contacts"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
 
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Инициализация всех компонентов ---
-    const fakeBackendForReviews = {
-        getApprovedReviews: async () => { await new Promise(res => setTimeout(res, 500)); return [ { name: "Анна К.", text: "Прекрасная клиника! Современное оборудование, внимательный персонал.", rating: 5 }, { name: "Сергей Б.", text: "Проходил полное обследование. Всё на высшем уровне!", rating: 5 }]; },
-        submitNewReview: async (reviewData) => { console.log("ОТПРАВКА ОТЗЫВА АДМИНУ:", reviewData); await new Promise(res => setTimeout(res, 1000)); return { success: true }; },
-    };
+    // Модальное окно записи
+    document.getElementById('prev-month')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); generateCalendar(currentDate.getFullYear(), currentDate.getMonth()); });
+    document.getElementById('next-month')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); generateCalendar(currentDate.getFullYear(), currentDate.getMonth()); });
+    document.getElementById('continue-btn')?.addEventListener('click', () => { if(selectedDate && selectedTime){ const summaryText = `к врачу <strong>${selectedDoctor.name}</strong>, ${selectedDate.toLocaleDateString('ru-RU')} в <strong>${selectedTime}</strong>`; document.getElementById('summary').innerHTML = summaryText; goToBookingStep(2); } });
+    document.getElementById('confirm-booking-btn')?.addEventListener('click', confirmAppointment);
+    const backBtn = document.querySelector('#bookingModal button[onclick="goToStep(1)"]');
+    if (backBtn) { backBtn.addEventListener('click', () => goToBookingStep(1)); }
 
-    // Загрузка врачей
+    // Модальное окно отзывов
+    const stars = document.querySelectorAll('#review-rating i');
+    stars.forEach(star => {
+        star.addEventListener('mouseover', (e) => { const ratingValue = e.target.dataset.value; stars.forEach(s => { s.classList.toggle('active', s.dataset.value <= ratingValue); }); });
+        star.addEventListener('mouseout', () => { stars.forEach(s => { s.classList.toggle('active', s.dataset.value <= currentRating); }); });
+        star.addEventListener('click', (e) => { currentRating = e.target.dataset.value; });
+    });
+}
+
+
+// --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦ ---
+
+function initHomePage() {
+    initHeroCarousel();
+
+    // Загрузка превью врачей
     const doctorsContainer = document.getElementById('doctors-container');
     if (doctorsContainer) {
         fetch(`${API_BASE_URL}/doctors`)
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка загрузки списка врачей');
-                return response.json();
-            })
-            .then(doctorsData => {
-                doctorsContainer.innerHTML = '';
-                doctorsData.forEach(doctor => {
-                    const doctorCardHTML = `
-                        <div class="swiper-slide h-auto">
-                            <div class="doctor-card">
-                                <img src="${doctor.imageUrl}" alt="Доктор ${doctor.name}" class="w-full h-64 object-cover" />
-                                <div class="p-6">
-                                    <div>
-                                        <h3 class="text-xl font-bold mb-2">${doctor.name}</h3>
-                                        <p class="text-gold mb-2">${doctor.specialty}</p>
-                                        <p class="text-gray-600 text-sm mb-4">Стаж работы: ${doctor.experience}<br />${doctor.degree}</p>
-                                    </div>
-                                    <button onclick="openBookingModal(${doctor.id}, '${doctor.name}')" class="w-full mt-4 bg-gold text-white py-2 rounded-lg hover:bg-opacity-90 transition">Записаться на приём</button>
-                                </div>
-                            </div>
-                        </div>`;
-                    doctorsContainer.innerHTML += doctorCardHTML;
-                });
+            .then(res => res.json())
+            .then(doctors => {
+                doctorsContainer.innerHTML = doctors.slice(0, 6).map(doc => `<div class="swiper-slide h-auto">${createDoctorCard(doc)}</div>`).join('');
                 new Swiper('.doctor-swiper', { slidesPerView: 1, spaceBetween: 30, loop: true, pagination: { el: '.swiper-pagination', clickable: true }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
+            });
+    }
+    
+    // Здесь будет код для загрузки превью услуг, акций и отзывов, когда бэкенд будет готов
+}
+
+function initDoctorsPage() {
+    const container = document.getElementById('doctors-full-list');
+    if(container) {
+        fetch(`${API_BASE_URL}/doctors`)
+            .then(res => res.json())
+            .then(doctors => {
+                if (doctors.length === 0) {
+                    container.innerHTML = `<p class="text-center col-span-full">На данный момент нет информации о специалистах.</p>`;
+                    return;
+                }
+                container.innerHTML = doctors.map(doc => createDoctorCard(doc)).join('');
             })
-            .catch(error => {
-                console.error("Ошибка при загрузке врачей:", error);
-                doctorsContainer.innerHTML = `<p class="text-center text-red-500 col-span-full">Не удалось загрузить список специалистов</p>`;
+            .catch(err => {
+                 container.innerHTML = `<p class="text-center col-span-full text-red-500">Не удалось загрузить список специалистов.</p>`;
             });
     }
-
-    // Загрузка отзывов (в демо-режиме)
-    const testimonialsContainer = document.getElementById('testimonials-container');
-    if (testimonialsContainer) {
-        fakeBackendForReviews.getApprovedReviews().then(reviews => {
-            testimonialsContainer.innerHTML = '';
-            reviews.forEach(review => {
-                let starsHTML = '';
-                for(let i=0; i<5; i++) { starsHTML += `<i class="fas fa-star ${i < review.rating ? 'text-gold' : 'text-gray-300'}"></i>`; }
-                const reviewCardHTML = `
-                    <div class="swiper-slide h-auto">
-                        <div class="testimonial-card">
-                            <div>
-                                <div class="flex items-center mb-4">
-                                    <div class="w-12 h-12 bg-gold rounded-full flex items-center justify-center text-white font-bold">${review.name.match(/\b(\w)/g).join('')}</div>
-                                    <div class="ml-4">
-                                        <h4 class="font-semibold">${review.name}</h4>
-                                        <div class="flex">${starsHTML}</div>
-                                    </div>
-                                </div>
-                                <p class="text-gray-600">"${review.text}"</p>
-                            </div>
-                        </div>
-                    </div>`;
-                testimonialsContainer.innerHTML += reviewCardHTML;
-            });
-            new Swiper('.testimonial-swiper', { slidesPerView: 1, spaceBetween: 30, loop: true, pagination: { el: '.swiper-pagination', clickable: true }, autoplay: { delay: 5000 }, breakpoints: { 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
-        });
-    }
-
-    // Отправка нового отзыва (в демо-режиме)
-    const submitReviewBtn = document.getElementById('submit-review-btn');
-    if (submitReviewBtn) {
-        submitReviewBtn.addEventListener('click', async () => {
-            const name = document.getElementById('review-name').value;
-            const text = document.getElementById('review-text').value;
-            if (!name || !text || currentRating === 0) {
-                alert('Пожалуйста, заполните все поля и поставьте оценку.');
-                return;
-            }
-            const reviewData = { name, text, rating: currentRating };
-            const response = await fakeBackendForReviews.submitNewReview(reviewData);
-            if (response.success) {
-                document.getElementById('review-step1').classList.add('hidden');
-                document.getElementById('review-step2').classList.remove('hidden');
-            } else {
-                alert('Произошла ошибка. Попробуйте позже.');
-            }
-        });
-    }
-    
-    // --- Обработчики кликов ---
-    document.getElementById('prev-month')?.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    });
-    
-    document.getElementById('next-month')?.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    });
-    
-    document.getElementById('continue-btn')?.addEventListener('click', () => {
-        if(selectedDate && selectedTime){
-            const summaryText = `к врачу <strong>${selectedDoctor.name}</strong>, ${selectedDate.toLocaleDateString('ru-RU')} в <strong>${selectedTime}</strong>`;
-            document.getElementById('summary').innerHTML = summaryText;
-            goToBookingStep(2);
-        }
-    });
-
-    document.getElementById('confirm-booking-btn')?.addEventListener('click', confirmAppointment);
-    
-    const backBtn = document.querySelector('#bookingModal .step button[onclick="goToStep(1)"]');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => goToBookingStep(1));
-    }
-
-    // Обработчики на общие кнопки "Записаться"
-    document.querySelectorAll('a[href="#doctors"], .general-booking-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if(e.currentTarget.tagName === 'A') e.preventDefault();
-            openBookingModal(null, null);
-            if(e.currentTarget.tagName === 'A') {
-                document.querySelector('#doctors').scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-});
+}
